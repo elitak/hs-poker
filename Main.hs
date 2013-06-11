@@ -2,6 +2,7 @@
 module Main where
 
 import Data.List
+import Control.Monad
 import System.Random
 import GHC.Enum
 
@@ -46,27 +47,30 @@ instance Random Suit where
    randomR (a, b) g = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
    random g = randomR (minBound, maxBound) g
 
+instance Random Card where
+   randomR (a, b) g = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
+   random g = randomR (minBound, maxBound) g
+
 instance Enum Card where
    fromEnum Card {..} = (fromEnum rank)*4 + fromEnum suit
    toEnum i = Card {rank = toEnum q, suit = toEnum r} where (q, r) = divMod i 4
 
 
--- 5 cards
---randHand = 
+randHand :: StdGen -> IO [Card]
+randHand gen = do
+   forM [1..5] $ \x -> do
+      card <- getStdRandom random
+      return card
 
--- 2 cards
---randHole
+-- TODO next: use State monad to deal from a deck
 
 main :: IO ()
 main = do
-   --print $ (minBound :: Rank)
-   --print $ (maxBound :: Suit)
-   --print $ (maxBound :: Card)
-   --print $ sort hand
    gen <- getStdGen
-   --x <- getStdRandom random
-   --print (x :: Suit)
-   print $ boundedEnumFrom (minBound :: Card)
+   hand <- randHand gen
+   print hand
+   print $ sort hand
+   --print $ boundedEnumFrom (minBound :: Card)
    -- quicker way to express Card types? use Read typeclass for 4H AS 1S JC etc.
    --maybe have derived Show instance to show shorthand using type qual. as well
-   where hand = [Card {rank = Ace, suit = Spades}, Card {rank = Queen, suit = Hearts}, Card {rank = Queen, suit = Spades}]
+   --where hand = [Card {rank = Ace, suit = Spades}, Card {rank = Queen, suit = Hearts}, Card {rank = Queen, suit = Spades}]
