@@ -33,22 +33,24 @@ data Rank =
 data Card = Card {
    rank :: Rank,
    suit :: Suit
-} deriving (Show, Eq, Ord, Bounded)
+} deriving (Eq, Ord, Bounded)
 
+instance Show Card where
+   show Card {..}
+      | rank > Ten  = map head [show rank, show suit]
+      | otherwise   = (show $ fromEnum rank + 2) ++ [head $ show suit]
+
+-- TODO how to avoid copy-pasted defs?
 instance Random Rank where
-   -- 3 ways to write this:
-   randomR (a, b) g = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
-   --               = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
-   --               = (toEnum x, g) where (x, g') = randomR (fromEnum a, fromEnum b) g
-   --               = let (x, g') = randomR (fromEnum a, fromEnum b) g in (toEnum x, g')
+   randomR (a, b) g = (toEnum x, g') where (x, g') = randomR (fromEnum a, fromEnum b) g
    random g = randomR (minBound, maxBound) g
 
 instance Random Suit where
-   randomR (a, b) g = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
+   randomR (a, b) g = (toEnum x, g') where (x, g') = randomR (fromEnum a, fromEnum b) g
    random g = randomR (minBound, maxBound) g
 
 instance Random Card where
-   randomR (a, b) g = case randomR (fromEnum a, fromEnum b) g of (x, g') -> (toEnum x, g')
+   randomR (a, b) g = (toEnum x, g') where (x, g') = randomR (fromEnum a, fromEnum b) g
    random g = randomR (minBound, maxBound) g
 
 instance Enum Card where
@@ -59,10 +61,9 @@ instance Enum Card where
 randHand :: StdGen -> IO [Card]
 randHand gen = do
    forM [1..5] $ \x -> do
-      card <- getStdRandom random
-      return card
+      getStdRandom random
 
--- TODO next: use State monad to deal from a deck
+-- TODO next: use State monad to deal from a deck, rather than just splitting a list of cards into two
 
 main :: IO ()
 main = do
