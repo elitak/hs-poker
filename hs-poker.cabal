@@ -19,3 +19,4 @@ executable hs-poker
   -- other-modules:       
   build-depends:       base ==4.5.*
                      , random
+                     , mtl

@@ -5,6 +5,7 @@ import Data.List
 import Control.Monad
 import System.Random
 import GHC.Enum
+import Control.Monad.State
 
 -- should these derive Enum as well?
 data Suit =
@@ -57,8 +58,17 @@ instance Enum Card where
    fromEnum Card {..} = (fromEnum rank)*4 + fromEnum suit
    toEnum i = Card {rank = toEnum q, suit = toEnum r} where (q, r) = divMod i 4
 
+type Deck = [Card]
 
-randHand :: StdGen -> IO [Card]
+newDeck :: Deck
+newDeck = boundedEnumFrom (minBound :: Card)
+
+
+--shuffle :: StdGen -> Deck -> Deck
+--shuffle gen deck =
+
+
+randHand :: StdGen -> IO Deck
 randHand gen = do
    forM [1..5] $ \x -> do
       getStdRandom random
@@ -71,7 +81,8 @@ main = do
    hand <- randHand gen
    print hand
    print $ sort hand
-   --print $ boundedEnumFrom (minBound :: Card)
+   --print newDeck
+
    -- quicker way to express Card types? use Read typeclass for 4H AS 1S JC etc.
    --maybe have derived Show instance to show shorthand using type qual. as well
    --where hand = [Card {rank = Ace, suit = Spades}, Card {rank = Queen, suit = Hearts}, Card {rank = Queen, suit = Spades}]
